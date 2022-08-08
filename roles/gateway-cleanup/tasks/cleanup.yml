@@ -5,7 +5,7 @@
     - name: stop gateway vms
       proxmox_kvm:
         api_user: root@pam
-        api_password: bello
+        api_password: "{{ pve_credentials.api_password }}"
         api_host: "{{ pve_nodes[0] }}"
         name: "{{ item.uuid }}-{{ idx + 1}}"
         state: stopped
