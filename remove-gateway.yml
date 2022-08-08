@@ -1,0 +1,67 @@
+---
+- name: confirm whether user really meant to stop/remove gateway
+  hosts: localhost
+  gather_facts: false
+  vars_prompt:
+    - name: ireallymeanit
+      prompt: Are you sure you want stop/remove gateway ? This playbook will disrupt service.
+      default: 'no'
+      private: no
+  tasks:
+    - name: exit playbook, if user did not mean to stop/remove gateway
+      fail:
+        msg: >
+          "Exiting remove-gateway playbook, gateway was NOT stopped or removed.
+           To stop/remove the cluster, either say 'yes' on the prompt or
+           or use `-e ireallymeanit=yes` on the command line when
+           invoking the playbook"
+      when: ireallymeanit != 'yes'
+
+- name: remove-gateway
+  hosts:
+    - sysmgr
+
+  gather_facts: false
+  any_errors_fatal: true
+  become: true
+
+  vars:
+    delegate_facts_host: true
+
+  pre_tasks:
+    - name: set gateway 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_gateway:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+    - name: gather facts
+      setup:
+      when:
+        - not delegate_facts_host | bool
+      tags:
+        - always
+
+    - name: gather and delegate facts
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      with_items: "{{ groups['all'] }}"
+      run_once: true
+      when:
+        - delegate_facts_host | bool
+      tags:
+        - always
+  tasks:
+    - import_role:
+        name: gateway-cleanup
+  post_tasks:
+    - name: set gateway 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_gateway:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

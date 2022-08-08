@@ -1,0 +1,4 @@
+## Loop through stop-gateways.yml
+- name: loop through gateways
+  include_tasks: "cleanup.yml"
+  loop: "{{ gateways }}"

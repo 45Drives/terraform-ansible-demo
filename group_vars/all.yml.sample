@@ -1,0 +1,75 @@
+---
+upgrade_packages: false
+
+vm_config:
+  memory: 2048
+  cores: 2
+  disk_size: "20G"
+  disk_storage: "vm-images"
+  username: "ubuntu"
+  password: ""
+  hagroup: ""
+
+
+pve_nodes:
+  - pve-demo
+#  - pve-demo2
+#  - pve-demo3
+
+pve_credentials:
+  api_endpoint: ""
+  api_token_id: ""
+  api_secret: ""
+
+ssh_public_key: ""
+ssh_private_key_path: "/home/ubuntu/.sshkey/cloudinit"
+
+gateways:
+  - uuid: ff4acda7c3
+    comments: "Customer 1 Inc."
+    ssd_quota: "1TB"
+    hdd_quota: "2TB"
+    nodes:
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.91
+        ip_cidr: 16
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.92
+        ip_cidr: 16
+    ctdb:
+      ip_address: 192.168.135.90
+      ip_cidr: 16
+    dns: 1.1.1.1
+    state: present
+  - uuid: ffa6776bc0
+    comments: "Customer 2 Inc."
+    ssd_quota: "1TB"
+    hdd_quota: "2TB"
+    nodes:
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.94
+        ip_cidr: 16
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.95
+        ip_cidr: 16
+    ctdb:
+      ip_address: 192.168.135.93
+      ip_cidr: 16
+    dns: 1.1.1.1
+    state: present
+  - uuid: faa6736bc0 
+    comments: "Customer 3 Inc."
+    ssd_quota: "1TB"
+    hdd_quota: "2TB"
+    nodes:
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.100
+        ip_cidr: 16
+      - ip_gateway: 192.168.0.1
+        ip_address: 192.168.135.101
+        ip_cidr: 16
+    ctdb:
+      ip_address: 192.168.135.102
+      ip_cidr: 16
+    dns: 1.1.1.1
+    state: present

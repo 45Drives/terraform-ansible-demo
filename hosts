@@ -1,0 +1,8 @@
+[sysmgr]
+192.168.135.252
+
+[sysmgr:vars]
+ansible_ssh_user=ubuntu
+ansible_ssh_pass=bello
+ansible_become_pass=bello
+ansible_python_interpreter=/usr/bin/python3

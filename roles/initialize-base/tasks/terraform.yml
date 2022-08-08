@@ -1,0 +1,56 @@
+---
+- name: terraform
+  block:
+    - name: install terraform dependancies
+      package:
+        name: "{{ item }}"
+        state: "{{ (upgrade_packages|bool) | ternary('latest','present') }}"
+      register: result
+      until: result is succeeded
+      with_items:
+        - gnupg
+        - software-properties-common
+        - curl
+
+    - name: add hashicorp gpg key
+      shell: curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
+
+    - name: add hashicorp repo
+      shell: apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+
+    - name: update apt-get repo and cache
+      apt: update_cache=yes force_apt_get=yes
+
+    - name: install terraform dependancies
+      package:
+        name: "terraform"
+        state: "{{ (upgrade_packages|bool) | ternary('latest','present') }}"
+      register: result
+      until: result is succeeded
+
+    - name: create terraform environment
+      file:
+        path: /opt/vm-config/terraform
+        state: directory
+        mode: '0755'
+    
+    - name: copy provider config
+      copy:
+        src: files/provider.tf
+        dest: /opt/vm-config/terraform/provider.tf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: create terraform credentials file
+      template:
+        src: credentials.auto.tfvars.j2
+        dest: /opt/vm-config/terraform/credentials.auto.tfvars
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: init terraform
+      shell: terraform init
+      args:
+        chdir: /opt/vm-config/terraform

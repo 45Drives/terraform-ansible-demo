@@ -1,0 +1,38 @@
+---
+- name: ssh config
+  block:
+    - name: change sshd config - password authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: "^PasswordAuthentication"
+        line: "PasswordAuthentication yes"
+
+    - name: change sshd config - permit root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin yes"
+
+    - name: change sudoers config - sudo with no password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: /usr/sbin/visudo -cf %s
+
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
+
+    - name: install ansible authorized key
+      ansible.posix.authorized_key:
+        user: "{{ item }}"
+        state: present
+        key: "{{ lookup('file', ssh_private_key_path + '.pub') }}"
+      with_items:
+        - "root"
+        - "{{ ansible_ssh_user }}"

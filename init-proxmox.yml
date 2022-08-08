@@ -1,0 +1,50 @@
+---
+- hosts:
+    - mains
+
+  gather_facts: false
+  any_errors_fatal: true
+  become: true
+
+  vars:
+    delegate_facts_host: true
+
+  pre_tasks:
+    - name: set initialize 'In Progress'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_initialize:
+            status: "In Progress"
+            start: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"
+
+    - name: gather facts
+      setup:
+      when:
+        - not delegate_facts_host | bool
+      tags:
+        - always
+
+    - name: gather and delegate facts
+      setup:
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      with_items: "{{ groups['all'] }}"
+      run_once: true
+      when:
+        - delegate_facts_host | bool
+      tags:
+        - always
+  tasks:
+    - import_role:
+        name: initialize-base
+      tags:
+        - always
+  post_tasks:
+    - name: set initialize 'Complete'
+      run_once: true
+      set_stats:
+        data:
+          installer_phase_initialize:
+            status: "Complete"
+            end: "{{ lookup('pipe', 'date +%Y%m%d%H%M%SZ') }}"

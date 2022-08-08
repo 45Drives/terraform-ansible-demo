@@ -1,0 +1,4 @@
+---
+- name: web endpoints
+  include_tasks: "gateway.yml"
+  loop: "{{ gateways }}"
