@@ -20,6 +20,7 @@ pve_credentials:
   api_endpoint: ""
   api_token_id: ""
   api_secret: ""
+  api_password: ""
 
 ssh_public_key: ""
 ssh_private_key_path: "/home/ubuntu/.sshkey/cloudinit"
